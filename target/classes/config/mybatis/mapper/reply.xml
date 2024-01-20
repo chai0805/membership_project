@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="r">
+	
+	<!-- 댓글 추가 -->
+	<insert id="insert_reply" parameterType="vo.ReplyVO">
+		insert into reply values(
+		seq_reply_idx.nextval,
+		#{r_content},
+		sysdate,
+		#{b_idx},
+		#{m_idx},
+		#{r_ip},
+		0
+		)
+	</insert>
+
+	<select id="select_reply_list" resultType="vo.BoardPMemberReplyViewVO" parameterType="java.util.HashMap">
+		SELECT rv.*,
+		rl.m_idx,
+		rv.m_idx r_m_idx,
+		CASE nvl(rl.m_idx,0) WHEN rl.m_idx THEN 1 ELSE 0 END rl_isliked
+		FROM reply_view rv LEFT JOIN (SELECT * FROM REPLY_ISLIKED rl WHERE m_idx=#{m_idx}) rl
+		ON rv.r_idx = rl.R_IDX 
+		WHERE b_idx=#{b_idx}
+		order by rv.r_idx desc
+	</select>
+	
+	<delete id="delete_replys_by_b_idx" parameterType="int">
+		delete reply where b_idx=#{b_idx}
+	</delete>
+	
+	<insert id="add_reply_like" parameterType="java.util.HashMap">
+		insert into REPLY_ISLIKED
+		values(#{r_idx},#{m_idx})
+	</insert>
+	
+	<delete id="delete_reply_to_unlike" parameterType="java.util.HashMap">
+		DELETE REPLY_ISLIKED
+		WHERE r_idx=#{r_idx} and m_idx=#{m_idx}
+	</delete>
+	
+	<update id="update_reply_like_count" parameterType="int">
+		update reply
+		set r_like_count=
+		(select count(*) from REPLY_ISLIKED 
+		where r_idx=#{r_idx})
+	</update>
+	
+	<delete id="delete_reply_by_writer" parameterType="java.util.HashMap">
+		delete reply
+		where r_idx=#{r_idx} and m_idx=#{m_idx}
+	</delete>
+	
+	<delete id="delete_reply_by_master" parameterType="int">
+		delete reply
+		where r_idx=#{r_idx}
+	</delete>
+	
+	<select id="select_one_reply" parameterType="java.util.HashMap" resultType="int">
+		select count(*) from reply
+		where m_idx=#{m_idx} and r_idx=#{r_idx}
+	</select>
+	
+	<update id="update_reply" parameterType="vo.ReplyVO">
+		update reply
+		set r_content=#{r_content},
+		r_date = sysdate
+		where r_idx=#{r_idx}
+	</update>
+
+</mapper>

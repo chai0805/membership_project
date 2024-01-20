@@ -1,0 +1,205 @@
+@charset "UTF-8";
+
+/* *{
+	border: 1px solid black;
+} */
+
+#board_view_div{
+	padding-top: 4%;
+	width: 45vw;
+	margin: auto;
+	text-align: center;
+}
+
+#id1, #reply_form_div{
+	margin-bottom: 2%;
+}
+
+#board_view_table{
+	position: relative;
+}
+
+#delete_button{
+	width: 3em;
+	height: 3em;
+	position: absolute;
+	top: 2%;
+	right: 6%;
+}
+
+#like_count_div{
+	position: absolute;
+	bottom: 3%;
+	right: 2%;
+}
+
+#like_count_div > td{
+	display: flex;
+}
+
+#b_like_count{
+	border: none;
+	width: 2em;
+}
+
+#id1 > table{
+	border: none;
+	overflow: auto;
+	outline: none;
+	resize: none;
+	margin: 1% auto;
+	padding: 2%;
+	width: 30em;
+	height: 7em;
+	box-shadow: 6px 6px 1px 1px #bcecff;
+	border: 2px solid #ffebf7;
+}
+
+th, td{
+	padding: 2%;
+}
+
+#post_title{
+	width: 20em;
+	font-size: 1.3em;
+}
+
+.button_img{
+	width: 2em;
+	height: 2em;
+}
+
+th{
+	width: 5em;
+}
+
+#like_count{
+	border: none;
+	width: 14.5em;
+}
+
+#board_content{
+	padding-top: 5%;
+	height: 30vh;
+	border: 1px solid #082a90;
+}
+
+.board_post_img_div{
+	width: 15em;
+	height: 15em;
+	margin: auto;
+}
+
+.board_post_img{
+	width: 100%;
+}
+
+#reply_form{
+	height: 21vh;
+}
+
+#reply_form_div > form{
+	width: 40vw;
+}
+
+#reply_textarea{
+	width: 32vw;
+}
+
+#submit_button_div{
+	width: 33vw;
+	display: inline-block;
+}
+
+#submit_button{
+	margin-top: 2%;
+    width: 10em;
+	float: right;
+	cursor: pointer;
+}
+
+#reply_list{
+	text-align: center;
+	margin-top: 3%;
+}
+
+.reply_div{
+	width: 34vw;
+	box-shadow: 6px 6px 1px 1px #bcecff;
+	border: 2px solid #ffebf7;
+	margin: 10% auto;
+	position: relative;
+}
+
+.delete_reply_button{
+	position: absolute;
+	width: 2em;
+	height: 2em;
+	top: 3%;
+	right: 2%;
+}
+
+.edit_reply_button{
+	position: absolute;
+	width: 1.5em;
+	height: 1.5em;
+	bottom: 5%;
+	right: 3%;
+}
+
+.user_info_div{
+	display: flex;
+	padding-top: 4%;
+    padding-left: 3%;
+}
+
+.user_photo{
+	width: 4em;
+	height: 4em;
+	border-radius: 50px;
+}
+
+.user_photo > img{
+	width: 100%;
+}
+
+.user_info{
+	width: calc(100% - 4em);
+	display: flex;
+	justify-content: space-between;
+	height: 4em;
+	line-height: 4em;
+}
+
+.user_info > div:first-child{
+	padding-left: 5%;
+}
+
+.user_info > div:last-child{
+	padding-right: 5%;
+}
+
+.reply_text_div{
+	width: 75%;
+	height: 5em;
+	border: 1px solid #ffa8db;
+	border-radius: 10px;
+	margin: 2% auto;
+	padding: 2%;
+	text-align: left;
+}
+
+.reply_like_div{
+	display: flex;
+	justify-content: right;
+}
+
+.like_img{
+	width: 2em;
+	height: 2em;
+}
+
+.reply_like_count{
+	border: none;
+	width: 2em;
+}

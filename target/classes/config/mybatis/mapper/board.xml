@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="b">
+
+	<!-- 사고 방지를 위해서 일단은 alias를 이쪽에서는 사용하지 않고 테스트 -->
+	
+	<!-- home.jsp에서 최신 것부터 보여주기 위한 select문 -->
+	<select id="select_board_list_popular" resultType="vo.BoardVO">
+        SELECT b.* FROM BOARD b LEFT JOIN P_MEMBER pm 
+        ON b.M_IDX =pm.M_IDX 
+        WHERE pm.M_ISMASTER = '0'
+        ORDER BY b.B_LIKE_COUNT desc
+    </select>
+	
+	<!-- 고정된 게시글 조회 -->
+	<select id="fixed_board_list" resultType="vo.BoardPMemberViewVO">
+		SELECT * FROM board_p_member_join_view
+		WHERE B_ISFIXED ='1'
+		ORDER BY B_POSTED_DATE DESC
+	</select>
+	
+	<select id="select_board_list" resultType="vo.BoardPMemberViewVO">
+		select * FROM board_p_member_join_view
+		where m_idx = #{m_idx}
+	</select>
+	
+	<select id="count_unfixed_master_list" parameterType="java.util.HashMap" resultType="int">
+		select count(*) from board_p_member_join_view
+		WHERE B_ISFIXED ='0' AND M_ISMASTER ='1'
+		<if test="search_word != null">
+			<choose>
+				<when test="search_field == 'b_title'">
+					and b_title like #{search_word}
+				</when>
+				<when test="search_field == 'b_content'">				
+					and b_content like #{search_word}
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	<select id="unfixed_master_board_list" parameterType="java.util.HashMap" resultType="vo.BoardPMemberViewVO">
+		select *
+		from (select ROW_NUMBER() over(order by B_POSTED_DATE desc) rnum,
+		b.* from board_p_member_join_view b
+			WHERE B_ISFIXED ='0' AND M_ISMASTER ='1'
+			<if test="search_word != null">
+			<choose>
+				<when test="search_field == 'b_title'">
+					and b_title like #{search_word}
+				</when>
+				<when test="search_field == 'b_content'">				
+					and b_content like #{search_word}
+				</when>
+			</choose>
+		</if>
+		)
+		where rnum between #{start1} and #{end1}
+	</select>
+	
+	<select id="unfixed_master_board_list2" resultType="vo.BoardPMemberViewVO">
+		select *
+		from (select ROW_NUMBER() over(order by B_POSTED_DATE desc) rnum,
+		b.* from board_p_member_join_view b
+			WHERE B_ISFIXED ='0' AND M_ISMASTER ='1'
+			<if test="search_word != null">
+				<choose>
+					<when test="search_field == 'b_title'">
+						and b_title like #{search_word}
+					</when>
+					<when test="search_field == 'b_content'">				
+						and b_content like #{search_word}
+					</when>
+				</choose>
+			</if>
+		)
+	</select>
+	
+	<select id="count_unfixed_fan_list" parameterType="java.util.HashMap" resultType="int">
+		select count(*) from board_p_member_join_view
+		WHERE B_ISFIXED ='0'
+		<if test="search_word != null">
+			<choose>
+				<when test="search_field == 'b_title'">
+					and b_title like #{search_word}
+				</when>
+				<when test="search_field == 'b_content'">				
+					and b_content like #{search_word}
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	<select id="unfixed_all_board_list" resultType="vo.BoardPMemberViewVO">
+		select *
+		from (select ROW_NUMBER() over(order by B_POSTED_DATE desc) rnum,
+		b.* from board_p_member_join_view b
+			WHERE B_ISFIXED ='0'
+			<if test="search_word != null">
+				<choose>
+					<when test="search_field == 'b_title'">
+						and b_title like #{search_word}
+					</when>
+					<when test="search_field == 'b_content'">				
+						and b_content like #{search_word}
+					</when>
+				</choose>
+			</if>
+		)
+		where rnum between #{start2} and #{end2}
+	</select>
+	
+	<select id="unfixed_all_board_list2" resultType="vo.BoardPMemberViewVO">
+		select *
+		from (select ROW_NUMBER() over(order by B_POSTED_DATE desc) rnum,
+		b.* from board_p_member_join_view b
+			WHERE B_ISFIXED ='0'
+			<if test="search_word != null">
+				<choose>
+					<when test="search_field == 'b_title'">
+						and b_title like #{search_word}
+					</when>
+					<when test="search_field == 'b_content'">				
+						and b_content like #{search_word}
+					</when>
+				</choose>
+			</if>
+		)
+	</select>
+	
+	<insert id="board_insert" parameterType="vo.BoardVO">
+		insert into board values(
+			seq_board_idx.nextval,
+			#{m_idx},
+			#{b_title},
+			#{b_content},
+			#{b_filename},
+			sysdate,
+			#{b_isfixed},
+			#{b_ip},
+			0,
+			0
+		)
+	</insert>
+	
+	<!-- board_selectOne => board_select_one -->
+	<select id="board_select_one" parameterType="java.util.HashMap" resultType="vo.BoardPMemberViewVO">
+		SELECT bmjv.B_IDX ,
+		(SELECT M_USERNAME  FROM P_MEMBER WHERE M_IDX=bmjv.M_IDX) m_username,
+		(SELECT m_idx FROM P_MEMBER WHERE M_IDX=bmjv.M_IDX) b_m_idx,
+		bmjv.B_TITLE ,
+		bmjv.B_FILENAME,
+		bmjv.B_CONTENT,
+		bmjv.B_POSTED_DATE,
+		bmjv.B_ISFIXED ,
+		bmjv.B_IP ,
+		BMJV.B_READ_HIT ,
+		bmjv.B_LIKE_COUNT ,
+		bmjv.B_REPLY_COUNT ,
+		nvl(bl.M_IDX,#{m_idx}) M_IDX, 
+		CASE nvl(bl.m_idx,0) WHEN bl.m_idx THEN 1 ELSE 0 END AS bL_ISLIKED
+		FROM board_p_member_join_view bmjv 
+		LEFT JOIN (SELECT * FROM BOARD_ISLIKED  WHERE m_idx=#{m_idx}) bl
+		ON bmjv.B_IDX =bl.B_IDX
+		WHERE BMJV.B_IDX =#{b_idx}
+	</select>
+	
+	<!-- 일반적인 경우 작성자가 삭제하는 경우 -->
+	<delete id="delete_board_post" parameterType="java.util.HashMap">
+		delete board where b_idx=#{b_idx} and m_idx=#{m_idx}
+	</delete>
+	
+	<select id="is_master" parameterType="int" resultType="int">
+		select count(*) cnt from P_MEMBER
+		where m_idx = #{m_idx} AND M_ISMASTER='1'
+	</select>
+	
+	<delete id="delete_board_post_by_master" parameterType="int">
+		delete board where b_idx=#{b_idx}
+	</delete>
+	
+	<update id="plus_board_read_hit" parameterType="int">
+		update board set b_read_hit=b_read_hit+1
+		where b_idx=#{b_idx}
+	</update>
+	
+	<select id="check_like_board" parameterType="java.util.HashMap" resultType="int">
+		select count(*) from board_isliked
+		where b_idx=#{b_idx} and m_idx=#{m_idx}
+	</select>
+	
+	<insert id="add_board_like" parameterType="java.util.HashMap">
+		insert into BOARD_ISLIKED values (
+		#{b_idx},
+		#{m_idx}
+		)	
+	</insert>
+	
+	<delete id="delete_to_unlike" parameterType="java.util.HashMap">
+		DELETE BOARD_ISLIKED
+		WHERE b_idx=#{b_idx} AND m_idx=#{m_idx}
+	</delete>
+	
+	<update id="recalculate_total_like" parameterType="int">
+		update board
+		set b_like_count = (select count(*) from BOARD_ISLIKED where b_idx=#{b_idx})
+		where b_idx=#{b_idx}
+	</update>
+	
+	<update id="board_update" parameterType="vo.BoardVO">
+		update board
+		set b_title=#{b_title},
+		b_content=#{b_content},
+		b_filename=#{b_filename},
+		b_ip=#{b_ip},
+		b_isfixed=#{b_isfixed},
+		b_posted_date=sysdate
+		where b_idx=#{b_idx}
+	</update>
+</mapper>
+
+

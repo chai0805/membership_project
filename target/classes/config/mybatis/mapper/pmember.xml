@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pm">
+	<select id="login_check" resultType="pmember"
+		parameterType="String">
+		select * from p_member where m_id=#{m_id}
+	</select>
+
+	<select id="id_check" resultType="int" parameterType="String">
+		select count(*) from p_member where m_id=#{m_id}
+	</select>
+	
+	<select id="get_m_idx" resultType="pmember"
+		parameterType="String">
+		select * from p_member where m_email=#{m_email}
+	</select>
+
+	<insert id="insert" parameterType="pmember">
+		insert into p_member values(
+			seq_p_member_m_idx.nextval,
+			#{m_username},
+			#{m_password},
+			#{m_id},
+			#{m_name},
+			#{m_tel},
+			#{m_email},
+			'default_profile.jpg',
+			0, 
+			0,
+			null,
+			null,
+			null,
+			null,
+			#{m_date_of_birth}
+		)
+		<!-- 시퀀스 추가 예정 -->
+		<!-- db에 맞게 컬럼 수정필요  -->
+	</insert>
+	
+	<select id="login_session_check" resultType="pmember" parameterType="int">
+		select * from p_member where m_idx=#{m_idx}
+	</select>
+	
+	<select id="select_one" resultType="pmember" parameterType="int">
+		select * from p_member where m_idx=#{m_idx}
+	</select>
+	
+	<select id="email_check" resultType="int" parameterType="String">
+		select count(*) from p_member where m_email=#{m_email}
+	</select>
+	
+	<update id="delete_update" parameterType="pmember">
+		update p_member set m_id=#{m_id},
+							m_email=#{m_email}
+							where m_idx=#{m_idx}
+	</update>
+	
+	<select id="id_find" resultType="pmember" parameterType="String">
+		select * from p_member where m_email=#{m_email}
+	</select>
+	
+	<update id="password_update" parameterType="java.util.HashMap" >
+		update p_member set m_password=#{m_new_password} where m_email=#{m_email}
+	</update>
+	
+	<update id="user_info_update" parameterType="pmember">
+		update p_member set m_name=#{m_name},
+							m_tel=#{m_tel},
+							m_date_of_birth=#{m_date_of_birth},
+							m_email=#{m_email}
+							where m_idx=#{m_idx}
+	</update>
+	
+	<update id="default_photo_name" parameterType="java.util.HashMap">
+		update p_member set m_photo_name=#{m_photo_name} where m_idx=#{m_idx}
+	</update>
+	
+	<update id="user_profile_update" parameterType="pmember">
+		update p_member set m_username=#{m_username},
+							m_photo_name=#{m_photo_name}
+							where m_idx=#{m_idx}
+	</update>
+
+	<update id="update_addr" parameterType="java.util.HashMap">
+		update p_member set m_addr1=#{m_addr1},
+							m_addr2=#{m_addr2},
+							m_addr3=#{m_addr3}
+							where m_idx=#{m_idx}
+	</update>
+
+</mapper>
+
+

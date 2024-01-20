@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="i">
+
+	<!-- 상품 목록 조회 반환 map -->
+	<resultMap type="vo.ItemVO" id="shop_list">
+		<result column="i_name" property="i_name" jdbcType="VARCHAR"/>
+	  	<result column="i_price" property="i_price" jdbcType="VARCHAR"/>
+	  	<result column="i_photo_name" property="i_photo_name" jdbcType="VARCHAR"/>
+	  	<result column="i_detail_photo_name" property="i_detail_photo_name" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<!-- i_idx, i_amount 반환 map -->
+	<resultMap type="vo.ItemVO" id="item_find">
+		<result column="i_idx" property="i_idx"/>
+	  	<result column="i_amount" property="i_amount"/>
+	</resultMap>
+	
+	<!-- 상품 업로드 -->
+	<insert id="item_upload" parameterType="item">
+		insert into item values (seq_item_idx.nextval,
+								#{i_name},
+								#{i_price},
+								#{i_color},
+								#{i_amount},
+								#{i_photo_name},
+								#{i_detail_photo_name}
+								)
+	</insert>
+	
+	<!-- 상품 목록 조회 -->
+	<select id="item_list_select" resultMap="shop_list">
+		SELECT * FROM item 
+		WHERE ROWID IN (SELECT MAX(ROWID) FROM item GROUP BY I_NAME) and i_idx != 1
+	</select>
+	
+	<!-- 선택한 상품 한개 조회 -->
+	<select id="item_select_one" parameterType="int" resultType="item">
+		select * from item where i_idx=#{i_idx}
+	</select>
+	
+	<!-- 선택한 상품의 색상 조회 -->
+	<select id="item_select_color" parameterType="String" resultType="String">
+		select i_color from item where i_name=#{i_name}
+	</select>
+	
+	<!-- 선택한 상품의 i_idx, i_amount 조회 -->
+	<select id="item_find_idx" parameterType="java.util.HashMap" resultMap="item_find">
+		select i_idx, i_amount from item where i_name=#{i_name} and i_color=#{i_color}
+	</select>
+	
+	<!-- 해당 이름의 상품 전체 삭제 -->
+	<delete id="item_delete" parameterType="String">
+		delete from item where i_name=#{i_name}
+	</delete>
+	
+	<!-- membership 구매 -->
+	<update id="membership_buy" parameterType="int">
+	 	<![CDATA[
+		update p_member
+		set m_valid_date = case
+	    when sysdate < m_valid_date then add_months(m_valid_date, 1)
+	    else add_months(sysdate, 1) end,
+		m_ismembership = '1'
+		where m_idx = #{m_idx}
+		]]>
+	</update>
+	
+	<!-- 로그인시 membership 확인 -->
+	<update id="membership_check" parameterType="int">
+	 	<![CDATA[
+		update p_member 
+		set m_ismembership= case when (sysdate < m_valid_date) then '1' else '0' end
+		where m_idx = #{m_idx}
+		]]>
+	</update>
+	
+	<!-- 유저번호로 주문리스트 조회 -->
+	<select id="select_order_list" parameterType="int" resultType="vo.POrderVO">
+		select * from P_ORDER_view
+		where m_idx=#{m_idx}
+	</select>
+	
+	<select id="select_one_order" parameterType="int" resultType="vo.POrderVO">
+		select * from p_order_view
+		where o_idx=#{o_idx}
+	</select>
+	
+</mapper>
